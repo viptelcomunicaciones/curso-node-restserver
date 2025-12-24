@@ -1,21 +1,29 @@
 import { Router } from 'express';
-import { userdelete, 
-        userget, 
+import { get1, getelements, getgeneric, getinicio, userdelete, 
+        userget,
         userpatch, 
         userpost, 
         userput } from '../controllers/user.js';
 
 export const router = Router();
 
-router.get('/', userget
+router.get('/', get1
 )
-router.put('/', userput
+router.get('/inicio', getinicio
 )
-router.put('/:id', userput
+router.get('/generic', getgeneric
 )
-router.delete('/', userdelete
+router.get('/elements', getelements
 )
-router.post('/', userpost
+router.get('/api/user', userget
 )
-router.patch('/', userpatch
+router.put('/api/user', userput
+)
+router.put('/api/user/:id', userput
+)
+router.delete('/api/user', userdelete
+)
+router.post('/api/user', userpost
+)
+router.patch('/api/user', userpatch
 )

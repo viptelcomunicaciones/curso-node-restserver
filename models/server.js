@@ -1,4 +1,5 @@
 import express from 'express'
+import hbs from 'hbs'
 import cors from'cors'
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -20,7 +21,7 @@ export class Server {
         this.PORT = process.env.PORT;
         this.__filename = fileURLToPath(import.meta.url);
         this.__dirname = path.dirname(__filename);
-        this.userpath ='/api/user';
+        this.userpath ='/';
 
         // middlewares
         this.middlewares();
@@ -31,6 +32,10 @@ export class Server {
     }
 
     middlewares(){
+        //handlebars
+        this.app.set('view engine', 'hbs');
+        hbs.registerPartials(path.join(__dirname, '../views/partials'));
+
         // directorio public 
         this.app.use(express.static('public'));
         //cors
@@ -50,4 +55,3 @@ export class Server {
     )  
     }
 }
-

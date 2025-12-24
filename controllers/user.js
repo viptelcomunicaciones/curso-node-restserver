@@ -12,6 +12,33 @@ const userget = (req = request, res = response) => {
         limit
     })
 }
+const get1 = (req = request, res = response) => {
+    res.render('home',{
+        Name:'Cesar Barrero',
+        Titulo:'Curso node js',
+    });
+}
+
+const getinicio = (req = request, res = response) => {
+    res.render('home',{
+        Name:'Cesar Barrero',
+        Titulo:'Curso node js',
+    });
+}
+
+const getgeneric = (req = request, res = response) => {
+    res.render('generic',{
+        Name:'Cesar Barrero',
+        Titulo:'Curso node js',
+    });
+}
+
+const getelements = (req = request, res = response) => {
+    res.render('elements',{
+        Name:'Cesar Barrero',
+        Titulo:'Curso node js',
+    });
+}
 
 const userput = (req, res = response) => {
     const id  = req.params.id
@@ -43,8 +70,12 @@ const userdelete = (req, res = response) => {
 
 export {
     userget,
+    get1,
     userput,
     userpost,
     userdelete,
-    userpatch
+    userpatch,
+    getinicio,
+    getgeneric,
+    getelements
 }
