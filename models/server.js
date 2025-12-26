@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import dotenv from 'dotenv'
 import { router as userRouter } from '../router/user.js';
+import { conectionDB } from '../database/config.js';
 dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,12 +23,18 @@ export class Server {
         this.__dirname = path.dirname(__filename);
         this.userpath ='/api/user';
 
+        // conexion a base de datos 
+        this.conectarDB();
         // middlewares
         this.middlewares();
         // rutas app
         this.router();
 
         
+    }
+
+    async conectarDB(){
+        await conectionDB();
     }
 
     middlewares(){
