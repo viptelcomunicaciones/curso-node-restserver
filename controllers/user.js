@@ -1,4 +1,7 @@
 import { response, request } from 'express';
+import { Usuario } from '../models/usuario.js';
+import bcrypt from "bcrypt";
+
 
 const userget = (req = request, res = response) => {
     
@@ -21,13 +24,19 @@ const userput = (req, res = response) => {
     })
 }
 
-const userpost = (req, res = response) => {
-    const nombre = req.body.name
-    const edad = req.body.Edad
+const userpost = async(req, res = response) => {
+    
+    const {nombre,correo,password,rol} = req.body
+    const usuario = new Usuario({nombre,correo,password,rol});
+    
+    // Encryptar la contraseña 
+    const salt = bcrypt.genSaltSync(15);
+    usuario.password = bcrypt.hashSync(password,salt);
+
+    // Guardar Base de datos 
+    await usuario.save();
     res.status(200).json({ 
-        msg: 'post API-- controller ',
-        nombre,
-        edad
+        usuario
     })
 }
 

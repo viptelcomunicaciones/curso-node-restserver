@@ -8,7 +8,6 @@ const UsuarioSchema = Schema({
     correo: {
         type: String,
         required: [true,'El correo es obligatorio'],
-        unique:true
     },
     password: {
         type: String,
@@ -20,7 +19,6 @@ const UsuarioSchema = Schema({
     rol: {
         type: String,
         required: true,
-        enum: ['Admin_role','user_role']
     },
     estado: {
         type: Boolean,
@@ -28,9 +26,14 @@ const UsuarioSchema = Schema({
     },
     google: {
         type: Boolean,
-        default:true
+        default:false
     },
 });
+
+UsuarioSchema.methods.toJSON = function () {
+    const {__v,password, ...usuario} = this.toObject();
+    return usuario;
+}
 
 const Usuario = model('Usuario', UsuarioSchema);
 
