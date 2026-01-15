@@ -14,11 +14,6 @@ npm install
 ```
 
 ### Configuración
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
-```
-PORT=8000
-MOMGODB_CNN=mongodb+srv://usuario:contraseña@cluster.mongodb.net/nombre_bd
-```
 
 ### Uso
 Para iniciar el servidor:
