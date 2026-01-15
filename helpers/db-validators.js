@@ -14,7 +14,16 @@ const Emailexite = async(correo = '')=>{
         }
 }
 
+const exiteusuariobyid = async(id)=>{
+        const exiteusuario = await Usuario.findById(id);
+        
+        if (!exiteusuario) {
+                throw new Error(`El id : ${id} no existe`)
+        }
+}
+
 export{
         Rolvalido,
-        Emailexite
+        Emailexite,
+        exiteusuariobyid
 }

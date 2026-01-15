@@ -3,25 +3,39 @@ import { Usuario } from '../models/usuario.js';
 import bcrypt from "bcrypt";
 
 
-const userget = (req = request, res = response) => {
+const userget = async(req = request, res = response) => {
     
-    const {id,name,apikey,pag=1,limit=10}= req.query;
+    //const {id,name,apikey,pag=1,limit=10}= req.query;
+    const {limite =5,desde =0} = req.query
+
+    //const usuarios = await Usuario.find({estado:true})
+        //.limit(Number(limite))
+        //.skip(Number(desde));
+
+    //const total = await Usuario.countDocuments({estado:true});
+
+    const [total,usuarios] = await Promise.all([
+        Usuario.countDocuments({estado:true}),
+        Usuario.find({estado:true})
+        .limit(Number(limite))
+        .skip(Number(desde))
+    ]);
     res.status(200).json({ 
-        msg: 'get API-- controller ',
-        id,
-        name,
-        apikey,
-        pag,
-        limit
+        total,
+        usuarios
     })
 }
 
-const userput = (req, res = response) => {
-    const id  = req.params.id
-    res.status(200).json({ 
-        msg: 'put API-- controller ',
-        id
-    })
+const userput = async(req, res = response) => {
+    const id  = req.params.id;
+    const {_id,password,google,estado,...resto}= req.body;
+    if (password) {
+        // Encryptar la contraseña 
+        const salt = bcrypt.genSaltSync(15);
+        resto.password = bcrypt.hashSync(password,salt);
+    }
+    const usuario = await Usuario.findByIdAndUpdate(id,resto,{new: true});
+    res.status(200).json(usuario);
 }
 
 const userpost = async(req, res = response) => {
@@ -45,9 +59,13 @@ const userpatch = (req, res = response) => {
         msg: 'patch API-- controller ' })
 }
 
-const userdelete = (req, res = response) => {
-    res.status(200).json({ 
-        msg: 'delete API-- controller ' })
+const userdelete = async(req, res = response) => {
+    const {id}= req.params;
+    //eliminar usuario fisicamente 
+    //const usuario = await Usuario.findByIdAndDelete(id);
+    //Actualizar a estado inactivo
+    const usuarioactivo = await Usuario.findByIdAndUpdate(id,{estado:false},{new: true});
+    res.status(200).json(usuarioactivo);
 }
 
 export {
