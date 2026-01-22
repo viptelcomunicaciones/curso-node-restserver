@@ -64,7 +64,7 @@ const userdelete = async(req, res = response) => {
     //eliminar usuario fisicamente 
     //const usuario = await Usuario.findByIdAndDelete(id);
     //Actualizar a estado inactivo
-    const usuarioactivo = await Usuario.findByIdAndUpdate(id,{estado:false},{new: true});
+    const usuarioactivo = await Usuario.findByIdAndUpdate(id,{estado:false},{new: true})
     res.status(200).json(usuarioactivo);
 }
 

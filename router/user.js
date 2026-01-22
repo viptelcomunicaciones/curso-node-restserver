@@ -1,11 +1,13 @@
 import { Router } from 'express';
+import { ValidarCamposUsers } from '../middlewares/validations.js';
+import { validarjwt } from '../middlewares/validar-jwt.js';
+import { adminrole, ValidarRoles } from '../middlewares/validar-roles.js';
 import { userdelete, 
         userget, 
         userpatch, 
         userpost, 
         userput } from '../controllers/user.js';
 import { check } from 'express-validator';
-import { ValidarCamposUsers } from '../middlewares/validations.js';
 import { Emailexite, exiteusuariobyid, Rolvalido } from '../helpers/db-validators.js';
 
 export const router = Router();
@@ -23,6 +25,10 @@ router.put('/:id',[
 ], userput
 )
 router.delete('/:id',[
+        validarjwt,
+        // validacion de admin rol 
+        //adminrole,
+        ValidarRoles('admin_role','send_role'),
         check('id','No es id valido').isMongoId(),
         check('id').custom(exiteusuariobyid),
         ValidarCamposUsers
