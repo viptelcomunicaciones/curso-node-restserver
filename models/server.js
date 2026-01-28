@@ -5,6 +5,7 @@ import path from 'path';
 import dotenv from 'dotenv'
 import { router as userRouter } from '../router/user.js';
 import { router as authRouter } from '../router/auth.js';
+import { router as categoriasRouter } from '../router/categorias.js';
 import { conectionDB } from '../database/config.js';
 dotenv.config()
 
@@ -22,8 +23,11 @@ export class Server {
         this.PORT = process.env.PORT;
         this.__filename = fileURLToPath(import.meta.url);
         this.__dirname = path.dirname(__filename);
-        this.userpath ='/api/user';
-        this.authpath ='/api/auth';
+        this.paths ={
+            user:   '/api/user',
+            auth:   '/api/auth',
+            categorias: '/api/categorias'
+        }
         // conexion a base de datos 
         this.conectarDB();
         // middlewares
@@ -48,8 +52,9 @@ export class Server {
     }
 
     router(){
-        this.app.use(this.userpath, userRouter);
-        this.app.use(this.authpath, authRouter);
+        this.app.use(this.paths.user, userRouter);
+        this.app.use(this.paths.auth, authRouter);
+        this.app.use(this.paths.categorias, categoriasRouter);
     }
 
     listen(){
