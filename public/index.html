@@ -1,11 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso denegado</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Acceso Google</title>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f4f6;
+}
+
+.root {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;   /* centro vertical */
+    justify-content: center; /* centro horizontal */
+    padding: 1rem;
+}
+
+.card {
+    background: #ffffff;
+    padding: 2.25rem 2.5rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+    text-align: center;
+    max-width: 360px;
+    width: 100%;
+}
+
+.title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.subtitle {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.95rem;
+    color: #6b7280;
+}
+
+.avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 0 auto 1.25rem auto;
+    border: 3px solid #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.email {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+    word-break: break-all;
+}
+
+#logout,
+#manual-signout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+}
+
+#logout {
+    color: #ffffff;
+    background: #ef4444;
+    box-shadow: 0 8px 18px rgba(248, 113, 113, 0.4);
+}
+
+#manual-signout {
+    margin-top: 1.5rem;
+    background: #e5e7eb;
+    color: #111827;
+}
+</style>
+
+<script>
+function decodeJWT(token) {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+    atob(base64)
+        .split("")
+        .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+}
+
+function renderLoggedUser(usuario, pictureFallback) {
+    const picture = usuario.img || pictureFallback;
+
+    document.body.innerHTML = `
+    <main class="root">
+        <section class="card">
+        <div class="avatar">
+            <img src="${picture || ""}" alt="Foto de perfil" />
+        </div>
+        <h1 class="title">Hola, ${usuario.nombre}</h1>
+        <p class="subtitle">Sesión iniciada con Google</p>
+        <p class="email">${usuario.correo}</p>
+        <button id="logout" class="g_id_signout">Cerrar sesión</button>
+        </section>
+    </main>
+    `;
+
+    document.getElementById("logout").addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+
+    // recomendado por Google para evitar bucle de auto sign-in[web:125][web:127]
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+    }
+
+    location.reload();
+    });
+}
+
+function handleCredentialResponse(response) {
+    console.log("Encoded JWT ID token: " + response.credential);
+
+    const responsePayload = decodeJWT(response.credential);
+    console.log("Decoded JWT ID token fields:", responsePayload);
+
+    fetch("http://localhost:3006/api/auth/google", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id_token: response.credential }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+        console.log("Respuesta backend:", data);
+
+        if (!data || !data.token || !data.usuario) {
+        alert("No se pudo iniciar sesión con Google");
+        return;
+        }
+
+        const token = data.token;
+        const usuario = data.usuario;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+
+        renderLoggedUser(usuario, responsePayload.picture);
+    })
+    .catch((err) => {
+        console.warn("Error en fetch /api/auth/google", err);
+        alert("Error al conectar con el servidor.");
+    });
+}
+
+// Rehidratar sesión si ya existe en localStorage
+window.onload = function () {
+    const usuarioJSON = localStorage.getItem("usuario");
+    if (usuarioJSON) {
+    try {
+        const usuario = JSON.parse(usuarioJSON);
+        renderLoggedUser(usuario, null);
+    } catch (e) {
+        console.warn("Error parseando usuario en localStorage", e);
+        localStorage.removeItem("usuario");
+    }
+    }
+};
+</script>
 </head>
 <body>
-    <h1>Acceso denegado</h1>
+<main class="root">
+<section class="card">
+    <h1 class="title">Google Sign-in</h1>
+    <p class="subtitle">Inicia sesión con tu cuenta de Google</p>
+
+    <!-- Configuración HTML de Google Identity Services[web:119] -->
+    <div
+    id="g_id_onload"
+    data-client_id="111645820122-nqdc8to7vl4t0o1bmf5n7cgo9cp701f7.apps.googleusercontent.com"
+    data-context="use"
+    data-ux_mode="popup"
+    data-auto_select="true"
+    data-itp_support="true"
+    data-callback="handleCredentialResponse">
+    </div>
+
+    <div
+    class="g_id_signin"
+    data-type="standard"
+    data-shape="pill"
+    data-theme="filled_black"
+    data-text="signin_with"
+    data-size="large"
+    data-locale="es-419"
+    data-logo_alignment="left">
+    </div>
+
+    <!-- Cerrar solo sesión local; también desactiva autoSelect[web:125][web:127] -->
+    <button id="manual-signout" class="g_id_signout">Sign out local</button>
+</section>
+</main>
+
+<script>
+document.getElementById("manual-signout").addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+    }
+    alert("Sesión local cerrada.");
+});
+</script>
 </body>
 </html>
