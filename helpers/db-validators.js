@@ -1,3 +1,4 @@
+import { Categoria } from '../models/categoria.js';
 import { Role } from '../models/role.js';
 import { Usuario } from '../models/usuario.js';
 const Rolvalido = async(rol = '')=>{
@@ -22,8 +23,17 @@ const exiteusuariobyid = async(id)=>{
         }
 }
 
+const exitecategoriabyid = async(id)=>{
+        const exitecategoria = await Categoria.findById(id);
+        
+        if (!exitecategoria) {
+                throw new Error(`El id : ${id} no existe`)
+        }
+}
+
 export{
         Rolvalido,
         Emailexite,
-        exiteusuariobyid
+        exiteusuariobyid,
+        exitecategoriabyid
 }

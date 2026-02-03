@@ -1,23 +1,41 @@
 import { response, request } from 'express';
 import bcrypt from "bcrypt";
 import { Categoria } from '../models/categoria.js';
-import { Usuario } from '../models/usuario.js';
 
 const categoriasget = async(req = request, res = response) => {
 
-    res.status(200).json({'msg': 'todo ok -get'
+    const {limite =5,desde =0} = req.query
+    const [total,categoria] = await Promise.all([
+        Categoria.countDocuments({estado:true}),
+        Categoria.find({estado:true})
+        .populate('usuario','nombre correo _id')
+        .limit(Number(limite))
+        .skip(Number(desde))
+    ]);
+    res.status(200).json({ 
+        total,
+        categoria
     })
 }
 
 const categoriasgetid = async(req = request, res = response) => {
 
-    res.status(200).json({'msg': 'todo ok -get id'
-    })
+    
+    const { id } = req.params;
+
+    const categoria = await Categoria.findById(id)
+    .populate('usuario', 'nombre correo _id'); 
+    res.status(200).json(categoria);
 }
 
 const categoriasput = async(req, res = response) => {
-
-    res.status(200).json({'msg': 'todo ok - put'});
+    const id  = req.params.id;
+    const {estado,usuario,...data} = req.body;
+    data.nombre = data.nombre.toUpperCase();
+    data.usuario = req.usuario._id;
+    const categoria = await Categoria.findByIdAndUpdate(id,data,{new: true})
+        .populate('usuario', 'nombre correo _id');
+    res.status(200).json(categoria);
 }
 
 const categoriaspost = async(req, res = response) => {
@@ -46,9 +64,10 @@ const categoriaspost = async(req, res = response) => {
 
 const categoriasdelete = async(req, res = response) => {
 
-    res.status(200).json({
-        'msg': 'todo ok - delete'
-    });
+    const id  = req.params.id;
+    const categoria = await Categoria.findByIdAndUpdate(id,{estado:false},{new: true})
+        .populate('usuario', 'nombre correo _id');
+    res.status(200).json(categoria);
 }
 
 export {
