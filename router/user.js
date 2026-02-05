@@ -8,7 +8,7 @@ import { userdelete,
         userpost, 
         userput } from '../controllers/user.js';
 import { check } from 'express-validator';
-import { Emailexite, exiteusuariobyid, Rolvalido } from '../helpers/db-validators.js';
+import { Emailexite, existeusuariobyid, Rolvalido } from '../helpers/db-validators.js';
 
 export const router = Router();
 
@@ -19,7 +19,7 @@ router.put('/', userput
 router.put('/:id',[
         //validaciones 
         check('id','No es id valido').isMongoId(),
-        check('id').custom(exiteusuariobyid),
+        check('id').custom(existeusuariobyid),
         check('rol').custom(Rolvalido),
         ValidarCamposUsers
 ], userput
@@ -30,7 +30,7 @@ router.delete('/:id',[
         //adminrole,
         ValidarRoles('admin_role','send_role'),
         check('id','No es id valido').isMongoId(),
-        check('id').custom(exiteusuariobyid),
+        check('id').custom(existeusuariobyid),
         ValidarCamposUsers
 ], userdelete
 )
