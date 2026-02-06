@@ -7,6 +7,7 @@ import { router as userRouter } from '../router/user.js';
 import { router as authRouter } from '../router/auth.js';
 import { router as categoriasRouter } from '../router/categorias.js';
 import { router as produtossRouter } from '../router/productos.js';
+import { router as buscarRouter } from '../router/buscar.js';
 import { conectionDB } from '../database/config.js';
 dotenv.config()
 
@@ -28,7 +29,8 @@ export class Server {
             user:   '/api/user',
             auth:   '/api/auth',
             categorias: '/api/categorias',
-            productos : '/api/productos'
+            productos : '/api/productos',
+            buscar : '/api/buscar',
         }
         // conexion a base de datos 
         this.conectarDB();
@@ -58,6 +60,7 @@ export class Server {
         this.app.use(this.paths.auth, authRouter);
         this.app.use(this.paths.categorias, categoriasRouter);
         this.app.use(this.paths.productos, produtossRouter);
+        this.app.use(this.paths.buscar, buscarRouter);
     }
 
     listen(){
