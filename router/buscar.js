@@ -8,7 +8,9 @@ import { productogetid, productopost, productosdelete, productosget, productospu
 import { buscarget } from '../controllers/buscar.js';
 
 export const router = Router();
-
-// ver productos total - publico 
+// ver colleccion total- publico
+router.get('/:coleccion/', buscarget
+)
+// ver coleccion por termino - publico 
 router.get('/:coleccion/:termino', buscarget
 )
