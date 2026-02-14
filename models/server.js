@@ -2,7 +2,8 @@ import express from 'express'
 import cors from'cors'
 import { fileURLToPath } from 'url';
 import path from 'path';
-import dotenv from 'dotenv'
+
+import fileUpload from 'express-fileupload'
 import { router as userRouter } from '../router/user.js';
 import { router as authRouter } from '../router/auth.js';
 import { router as categoriasRouter } from '../router/categorias.js';
@@ -10,7 +11,7 @@ import { router as produtossRouter } from '../router/productos.js';
 import { router as buscarRouter } from '../router/buscar.js';
 import { router as uploadsRouter } from '../router/uploads.js';
 import { conectionDB } from '../database/config.js';
-dotenv.config()
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,11 @@ export class Server {
         this.app.use(cors())
         //lectura y parseo body 
         this.app.use(express.json());
+        this.app.use(fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/',
+            createParentPath : true
+            }));
     }
 
     router(){

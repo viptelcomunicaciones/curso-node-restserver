@@ -40,10 +40,20 @@ const existeproductobyid = async(id)=>{
         }
 }
 
+const coleccionespermitidas = (coleccion ='',colecciones=[])=>{
+        const incluidas =colecciones.includes(coleccion);
+        
+        if (!incluidas) {
+                throw new Error(`La coleccion : ${coleccion} no es permitida,${colecciones}`)
+        }
+        return true;
+}
+
 export{
         Rolvalido,
         Emailexite,
         existeusuariobyid,
         existecategoriabyid,
-        existeproductobyid
+        existeproductobyid,
+        coleccionespermitidas
 }
