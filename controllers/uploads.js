@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { response, request } from 'express';
@@ -7,6 +8,12 @@ import { subirarchivo } from '../helpers/subir-archivo.js';
 import { Usuario } from '../models/usuario.js';
 import { Producto } from '../models/producto.js';
 import { Categoria } from '../models/categoria.js';
+
+cloudinary.config({
+    cloud_name: 'dd0umue8e',
+    api_key: process.env.CLOUDINARY_APIKEY,
+    api_secret: process.env.CLOUDINARY_APISECRET
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,6 +66,45 @@ const actualizarimagen = async (req = request, res = response) => {
     res.json(model)
 };
 
+const actualizarimagenclaudinary = async (req = request, res = response) => {
+    const {id,coleccion} = req.params
+    let model;
+    switch (coleccion) {
+        case 'usuarios':
+            model = await Usuario.findById(id);
+            if (!model) {
+                return res.status(400).json({
+                    msg:`no existe el usuario con el ${id}`
+                });
+            }
+            break;
+        case 'productos':
+            model = await Producto.findById(id);
+            if (!model) {
+                return res.status(400).json({
+                    msg:`no existe el producto con el ${id}`
+                });
+            }
+            break;
+        default:
+            return res.status(400).json({ msg: 'Colección no válida' });
+    }
+
+    // limpiar imagenes 
+    if (model.img) {
+        const nombreArl = model.img.split('/');
+        const nombre = nombreArl[nombreArl.length -1];
+        const [public_id] = nombre.split('.');
+        cloudinary.uploader.destroy(public_id);
+    }
+    const {tempFilePath}= req.files.archivo
+    const {secure_url}= await cloudinary.uploader.upload(tempFilePath);
+    model.img= secure_url;
+    await model.save();
+    
+    res.json(model)
+};
+
 const mostrarimagen = async (req = request, res = response) => {
     const {id,coleccion} = req.params
     let model;
@@ -101,5 +147,6 @@ const mostrarimagen = async (req = request, res = response) => {
 export {
     cargararchivospost,
     actualizarimagen,
-    mostrarimagen
+    mostrarimagen,
+    actualizarimagenclaudinary
 }

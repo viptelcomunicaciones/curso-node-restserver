@@ -4,7 +4,7 @@ import { validarjwt } from '../middlewares/validar-jwt.js';
 import { adminrole, ValidarRoles } from '../middlewares/validar-roles.js';
 import { check } from 'express-validator';
 import { coleccionespermitidas, Emailexite, existecategoriabyid, existeproductobyid, Rolvalido } from '../helpers/db-validators.js';
-import { actualizarimagen, cargararchivospost, mostrarimagen } from '../controllers/uploads.js';
+import { actualizarimagen, actualizarimagenclaudinary, cargararchivospost, mostrarimagen } from '../controllers/uploads.js';
 import { validararchivosubir } from '../middlewares/validar-archivo.js';
 
 const router = Router();
@@ -18,7 +18,7 @@ router.put('/:coleccion/:id',[
     check('id','No es id valido').isMongoId(),
     check('coleccion').custom(c=>coleccionespermitidas(c,['usuarios','productos'])),
     ValidarCamposUsers
-],actualizarimagen)
+],actualizarimagenclaudinary)
 
 router.get('/:coleccion/:id',[
     check('id','No es id valido').isMongoId(),
