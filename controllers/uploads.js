@@ -129,20 +129,34 @@ const mostrarimagen = async (req = request, res = response) => {
             return res.status(400).json({ msg: 'Colección no válida' });
     }
 
-    // limpiar imagenes 
-    if (model.img) {
-        const imgpath= path.join(__dirname, '../uploads/', coleccion, model.img);
-        if (fs.existsSync(imgpath)) {
-            return res.sendFile(imgpath)
-        }
+    // limpiar imagenes en local 
+    //if (model.img) {
+        //const imgpath= path.join(__dirname, '../uploads/', coleccion, model.img);
+        //if (fs.existsSync(imgpath)) {
+            //return res.sendFile(imgpath)
+        //}
+    //}
+
+    //if (!model.img) {
+        //const imgpath= path.join(__dirname, '../assets/no-image.jpg' );
+        //if (fs.existsSync(imgpath)) {
+            //return res.sendFile(imgpath)
+        //}
+    //}
+
+    // Si tiene imagen de Cloudinary (URL completa), redirige directamente
+    if (model.img && model.img.startsWith('http')) {
+        return res.redirect(model.img);  // ← NUEVO: Redirige a Cloudinary CDN
     }
 
-    if (!model.img) {
-        const imgpath= path.join(__dirname, '../assets/no-image.jpg' );
-        if (fs.existsSync(imgpath)) {
-            return res.sendFile(imgpath)
-        }
+    // Fallback: imagen por defecto local (igual que antes)
+    const imgpath = path.join(__dirname, '../assets/no-image.jpg');
+    if (fs.existsSync(imgpath)) {
+        return res.sendFile(imgpath);
     }
+
+    // Si no existe ni Cloudinary ni default, error 404
+    return res.status(404).json({ msg: 'Imagen no encontrada' });
 };
 export {
     cargararchivospost,

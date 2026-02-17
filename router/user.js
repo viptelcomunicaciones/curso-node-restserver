@@ -14,10 +14,10 @@ export const router = Router();
 
 router.get('/', userget
 )
-router.put('/', userput
-)
 router.put('/:id',[
-        //validaciones 
+        //validaciones
+        validarjwt,
+        ValidarRoles,
         check('id','No es id valido').isMongoId(),
         check('id').custom(existeusuariobyid),
         check('rol').custom(Rolvalido),
@@ -35,14 +35,16 @@ router.delete('/:id',[
 ], userdelete
 )
 router.post('/',[
-        //verificaciones 
+        //verificaciones
+        validarjwt,
         check('nombre','El nombre es obligatorio').not().isEmpty(),
         check('password','El password debe ser de mas de 6 caracteres').isLength({min:6}),
         check('password','La contraseña es obligatoria').not().isEmpty(),
         check('correo','El correo no es valido').isEmail(),
         check('correo').custom(Emailexite),
-        //check('rol','Nos es un rol valido').isIn(['Admin_role','user_role']),
+        //check('rol','Nos es un rol valido').isIn(['Admin_role','send_role'])
         check('rol').custom(Rolvalido),
+        ValidarRoles,
         ValidarCamposUsers
 ], userpost
 )
